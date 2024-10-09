@@ -1,0 +1,5 @@
+flask
+psutil
+plotly
+requests
+smtplib

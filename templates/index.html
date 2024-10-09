@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Monitoring Dashboard</title>
+    
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1e272e;
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin: 20px 0;
+            color: #f1c40f;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .graph-container {
+            background-color: #2f3640;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+            padding: 20px;
+            width: 80%;
+        }
+
+        .graph-container h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .graph {
+            height: 400px;
+        }
+
+        .info {
+            color: #ffffff; /* White text */
+            margin: 10px 0;
+        }
+
+        .processes-container {
+            background-color: #2f3640;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+            padding: 20px;
+            width: 80%;
+            text-align: left;
+        }
+
+        .processes-container h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ffffff;
+        }
+
+        th {
+            background-color: #3b3b3b;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌟 System Monitoring Dashboard 🌟</h1>
+    <div class="container">
+        <div class="graph-container">
+            <h2>CPU Usage</h2>
+            <div id="cpu-graph" class="graph"></div>
+            <div id="cpu-info" class="info"></div> <!-- Info for CPU -->
+        </div>
+
+        <div class="graph-container">
+            <h2>Memory Usage</h2>
+            <div id="memory-graph" class="graph"></div>
+            <div id="memory-info" class="info"></div> <!-- Info for Memory -->
+        </div>
+
+        <div class="graph-container">
+            <h2>Disk Usage</h2>
+            <div id="disk-graph" class="graph"></div>
+            <div id="disk-info" class="info"></div> <!-- Info for Disk -->
+        </div>
+
+        <div class="processes-container">
+            <h2>Running Processes</h2>
+            <table id="processes-table">
+                <thead>
+                    <tr>
+                        <th>PID</th>
+                        <th>Name</th>
+                        <th>CPU (%)</th>
+                        <th>Memory (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function fetchDataAndPlot(endpoint, graphDiv, ylabel, lineColor, infoDiv) {
+            fetch(endpoint)
+                .then(response => response.json())
+                .then(data => {
+                    var trace = {
+                        y: data,
+                        mode: 'lines',
+                        line: { color: lineColor, width: 3 }
+                    };
+                    var layout = {
+                        title: ylabel,
+                        xaxis: { title: 'Time' },
+                        yaxis: { title: ylabel + ' (%)', range: [0, 100] },
+                        paper_bgcolor: '#2f3640',
+                        plot_bgcolor: '#2f3640',
+                        font: {
+                            color: '#ffffff'
+                        }
+                    };
+                    Plotly.newPlot(graphDiv, [trace], layout);
+                });
+        }
+    
+        function fetchSystemInfo() {
+            fetch('/system_info')
+                .then(response => response.json())
+                .then(systemInfo => {
+                    // Update CPU info
+                    const cpuInfo = `
+                        Total CPU: ${systemInfo.cpu_count}, Used: ${systemInfo.cpu_usage}%, Free: ${systemInfo.free_cpu}%
+                    `;
+                    document.getElementById('cpu-info').innerHTML = cpuInfo;
+    
+                    // Update Memory info
+                    const memoryInfo = `
+                        Total Memory: ${systemInfo.total_memory.toFixed(2)} MB, Used: ${systemInfo.memory_usage}%, Free: ${systemInfo.free_memory.toFixed(2)} MB
+                    `;
+                    document.getElementById('memory-info').innerHTML = memoryInfo;
+    
+                    // Update Disk info
+                    const diskInfo = `
+                        Total Disk: ${systemInfo.total_disk.toFixed(2)} GB, Used: ${systemInfo.disk_usage}%, Free: ${systemInfo.free_disk.toFixed(2)} GB
+                    `;
+                    document.getElementById('disk-info').innerHTML = diskInfo;
+                });
+        }
+    
+        function fetchProcesses() {
+            fetch('/processes')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('processes-table').querySelector('tbody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+                    data.forEach(proc => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${proc.pid}</td>
+                            <td>${proc.name}</td>
+                            <td>${proc.cpu_percent}</td>
+                            <td>${proc.memory_percent}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                });
+        }
+    
+        setInterval(() => {
+            fetchDataAndPlot('/cpu', 'cpu-graph', 'CPU Usage', '#e74c3c', 'cpu-info'); // Red
+            fetchDataAndPlot('/memory', 'memory-graph', 'Memory Usage', '#3498db', 'memory-info'); // Blue
+            fetchDataAndPlot('/disk', 'disk-graph', 'Disk Usage', '#2ecc71', 'disk-info'); // Green
+            fetchProcesses(); // Fetch running processes
+            fetchSystemInfo(); // Fetch system info for CPU, memory, and disk
+        }, 2000);
+    </script>       
+</body>
+</html>
