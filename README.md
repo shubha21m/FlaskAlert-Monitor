@@ -1,5 +1,6 @@
 # FlaskAlert Monitor Deployment Guide
-
+![FlaskAlert Monitor](dashboard1.png)
+![FlaskAlert Monitor](dashboard2.png)
 This README provides instructions for deploying the FlaskAlert Monitor application using two approaches: Docker container locally and Kubernetes cluster.
 
 ### Prerequisites
