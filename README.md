@@ -45,7 +45,7 @@ This README provides instructions for deploying the FlaskAlert Monitor applicati
 3. Access the application:
    Open your web browser and navigate to `http://localhost:5000`
 
-## 2. Kubernetes Cluster Deployment
+## 3. Kubernetes Cluster Deployment
 
 ### Prerequisites
 - Kubernetes cluster set up (e.g., minikube, AWS EKS)
