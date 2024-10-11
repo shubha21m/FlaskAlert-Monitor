@@ -9,32 +9,40 @@ This README provides instructions for deploying the FlaskAlert Monitor applicati
 - AWS CLI installed and configured
 - Python 3 installed
 
-## 1. Docker Container Deployment (Local)
-
-### Steps
-
-1. Clone the repository:
+### Clone the repository:
    ```
    git clone <repository-url>
    cd flaskalert-monitor
    ```
 
-2. Install dependencies:
+## 1. Deploying the Flask application locally
+1. Install dependencies:
    ```
    pip install -r requirements.txt
    ```
+2. Run the application:
+   ```
+   python3 app.py
+   ```
+3. Access the application:
+   Open your web browser and navigate to `http://localhost:5000`
 
-3. Build the Docker image:
+
+## 2. Docker Container Deployment (Local)
+
+### Steps
+
+1. Build the Docker image:
    ```
    docker build -t flaskalert-monitor:latest .
    ```
 
-4. Run the Docker container:
+2. Run the Docker container:
    ```
    docker run -d -p 5000:5000 --name flaskalert-monitor flaskalert-monitor:latest
    ```
 
-4. Access the application:
+3. Access the application:
    Open your web browser and navigate to `http://localhost:5000`
 
 ## 2. Kubernetes Cluster Deployment
