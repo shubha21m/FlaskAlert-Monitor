@@ -37,7 +37,11 @@ pipeline {
         }
         stage ("Trivy File Scan") {
             steps {
-                sh "trivy fs . > trivy.txt"
+                //sh "trivy fs . > trivy.txt"
+                sh"""
+                    trivy fs . --severity CRITICAL,HIGH --format table || true
+                    trivy fs --format table -o trivy_fs.html .
+                """
             }
         }
         stage ("Build Docker Image") {
